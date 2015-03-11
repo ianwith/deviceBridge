@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>DEMO</title>
+</head>
+<body>
+	<button id="reply">Test Reply</button>
+	<script src="deviceBridge.js"></script>
+	<script>
+	var btn = document.getElementById("reply");
+	btn.addEventListener('click', function(){
+		deviceBridge.device.causeReply('{"data": "test"}');
+	});
+	function send_reply (args) {
+		var data = JSON.stringify(args);
+		alert(data);
+		// do some request
+	}
+	</script>
+</body>
+</html>
