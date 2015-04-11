@@ -1,7 +1,9 @@
 (function(){
+
     var isAndroid = /Android/.test(navigator.userAgent);
     var callbackMethodName = null;
     var debug_mode = !(/cm_na/.test(navigator.userAgent));
+
     /**
      * 与NA约定的Action名称
      */
@@ -43,9 +45,11 @@
             doRequest(action, params);
         }
     };
+
     function getReqID () {
         return '_bd_' + new Date().getTime();
     }
+
     function initCallback (callback, nReqID) {
         callbackMethodName = 'callbackjs' + nReqID;
         window[callbackMethodName] = function(res){
@@ -53,6 +57,15 @@
             callback(res);
         }
     }
+
+    /**
+     * 向NA发送请求统一入口
+     *
+     * @param {String} action 传递约定事件名
+     * @param {String} nReqID 流程唯一标识ID
+     * @param {Object} args 传递的json参数
+     * @param {String=} callbackMethodName 传递回调函数名称
+     */
     function sendRequest (action, nReqID, args, callbackMethodName) {
         var reqData = {
             action: action,
@@ -80,12 +93,14 @@
             if (callbackMethodName != null) {
                 var data = {
                     data: "content",
+                    pid: reqData.args.pid,
                     actionID: reqData.actionID
                 }
                 window[callbackMethodName](JSON.stringify(data));
             }
         }
     }
+
     function doRequest (action, args, callback) {
         var nReqID = getReqID();
         if (callback) {
@@ -96,6 +111,7 @@
             sendRequest(action, nReqID, args);
         }
     }
+
     /**
      * 注册命名空间
      */
@@ -109,6 +125,7 @@
         }
         return owner;
     }
+
     /**
      * 固化参数Action名
      */
@@ -119,6 +136,7 @@
             return fn.apply(this, args);
         }
     }
+
     /**
      * 生成方法
      */
@@ -129,6 +147,7 @@
         var namespace = ns(prefix);
         namespace[method] = currying(fn, cmdMap[method]);
     }
+
     /**
      * 构建接口
      */
@@ -137,15 +156,16 @@
             bindFn(key, cmdPool[key]);
         }
     }
+
     /**
      * 构建调试接口
      */
     function buildDebugInterface () {
-        deviceBridge.setBebugMode = function (mode) {
+        window.deviceBridge.setBebugMode = function (mode) {
             debug_mode = !!mode;
         }
     }
 
-    buildDebugInterface();
     buildInterface();
+    buildDebugInterface();
 })();

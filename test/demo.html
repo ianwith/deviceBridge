@@ -1,22 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<title>DEMO</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEMO</title>
 </head>
 <body>
-	<button id="reply">Test Reply</button>
-	<script src="../deviceBridge.js"></script>
-	<script>
-	var btn = document.getElementById("reply");
-	btn.addEventListener('click', function(){
-		deviceBridge.device.causeReply('{"data": "test"}');
-	});
-	function send_reply (args) {
-		var data = JSON.stringify(args);
-		alert(data);
-		// do some request
-	}
-	</script>
+    <div id="container">
+        <p>测试回复流程</p>
+        <button data-fun="reply" data-id="10000">Test Reply</button>
+    </div>
+    <script src="../lib/zepto.js"></script>
+    <script src="../lib/tap.js"></script>
+    <script src="../lib/hammer.js"></script>
+    <script src="../deviceBridge.js"></script>
+    <script>
+
+    function Demo (options) {
+        $.extend(this, options);
+        this.init();
+    }
+
+    Demo.prototype.init = function () {
+        var me = this;
+        this.events();
+        window.send_reply = function (args) {
+            me.dorequest(args);
+        }
+    };
+
+    Demo.prototype.dorequest = function (args) {
+        var data = JSON.stringify(args);
+        alert(data);
+        alert('跑到这里流程通啦！接下来发起服务器请求:-)');
+        // do some ajax request
+    };
+
+    Demo.prototype.events = function () {
+        var me = this;
+        new TapEvents({
+            container: $('#container'),
+            bind: {
+                'reply': function (target) {
+                    if (!target.attr('disabled')) {
+                        target.attr('disabled', 'disabled');
+                        
+                        deviceBridge.device.causeReply({
+                            'pid': target.attr('data-id')
+                        });
+
+                        setTimeout(function () {
+                            target.removeAttr('disabled');
+                        }, 500);
+                    }
+                    else {
+                        return;
+                    }
+                }
+            }
+        });
+    };
+
+    new Demo();
+
+    </script>
 </body>
 </html>
